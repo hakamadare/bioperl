@@ -1,6 +1,7 @@
 package FastaParser;
 use IO::Scalar;
 use PerlIO::eol;
+use Spreadsheet::SimpleExcel;
 use Tie::File::AnyData::Bio::Fasta;
 use Dancer ':syntax';
 
@@ -12,7 +13,10 @@ get '/' => sub {
     template 'index';
 };
 
-put '/fasta' => sub {
+put qr{/fasta/(csv|xls)} => sub {
+    my( $format ) = splat;
+    debug $format;
+
     my $result;
 
     my $body = request->body;
@@ -54,6 +58,17 @@ put '/fasta' => sub {
         }
     }
 
+    my( @header ) = ( qw( Position A C T G N Total ) );
+
+    if ( $format eq 'xls' ) {
+        $result = Spreadsheet::SimpleExcel->new;
+
+        $result->add_worksheet( 'Results', { -headers => \@header } );
+    }
+    else {
+        $result = join( ',', @header ) . "\n";
+    }
+
     # now summarize them
     foreach my $position ( sort {$a <=> $b } keys ( %{$stats->{positions}} ) ) {
         my( @line ) = $position;
@@ -74,10 +89,21 @@ put '/fasta' => sub {
         push( @line, sprintf( '%.1f', 100 * ( $n / $stats->{total} ) ) );
         push( @line, sprintf( '%.1f', 100 * ( ( $a + $c + $t + $g + $n ) / $stats->{total} ) ) );
 
-        $result .= join( ',', @line ) . "\n";
+        if ( $format eq 'xls' ) {
+            $result->add_row( 'Results', \@line );
+        }
+        else {
+            $result = join( ',', @line ) . "\n";
+        }
     }
 
-    return( $result );
+    # now return the results
+    if ( $format eq 'xls' ) {
+        return( $result->output );
+    }
+    else {
+        return( $result );
+    }
 };
 
 true;
