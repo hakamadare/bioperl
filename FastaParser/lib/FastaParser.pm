@@ -59,11 +59,13 @@ put '/fasta' => sub {
         my( @line ) = $position;
         
         my( $individual ) = ( $stats->{positions}->{$position} );
-        my( $a ) = defined( $individual->{a} ) ? scalar( @{$individual->{a}} ) : 0;
-        my( $c ) = defined( $individual->{c} ) ? scalar( @{$individual->{c}} ) : 0;
-        my( $t ) = defined( $individual->{t} ) ? scalar( @{$individual->{t}} ) : 0;
-        my( $g ) = defined( $individual->{g} ) ? scalar( @{$individual->{g}} ) : 0;
-        my( $n ) = defined( $individual->{n} ) ? scalar( @{$individual->{n}} ) : 0;
+
+        my( $a ) = scalar( @{delete( $individual->{a} ) || []} );
+        my( $c ) = scalar( @{delete( $individual->{c} ) || []} );
+        my( $t ) = scalar( @{delete( $individual->{t} ) || []} );
+        my( $g ) = scalar( @{delete( $individual->{g} ) || []} );
+        # anything left over?
+        my( $n ) = scalar( keys( %{$individual} ) );
 
         push( @line, sprintf( '%.1f', 100 * ( $a / $stats->{total} ) ) );
         push( @line, sprintf( '%.1f', 100 * ( $c / $stats->{total} ) ) );
