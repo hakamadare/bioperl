@@ -1,0 +1,27 @@
+# FastaParser
+
+## Dependencies
+
+Specs for all of these are in Repoforge.
+
+* Dancer
+* IO::stringy
+* PerlIO::eol
+* Tie::File::AnyData::Bio::Fasta
+
+## Running
+
+In one terminal:
+
+    $ cd FastaParser/
+    $ perl -Ilib ./bin/app.pl
+    [49172]  core @0.000010> loading Dancer::Handler::Standalone handler in /usr/share/perl5/vendor_perl/Dancer/Handler.pm l. 40
+    [49172]  core @0.000217> loading handler 'Dancer::Handler::Standalone' in /usr/share/perl5/vendor_perl/Dancer.pm l. 352
+    >> Dancer 1.3060 server 49172 listening on http://0.0.0.0:3000
+    == Entering the development dance floor ...
+
+In another terminal:
+
+    $ curl --upload-file 23-nucleotide.txt http://localhost:3000/fasta
+
+Now look at the debug output in the first terminal.
