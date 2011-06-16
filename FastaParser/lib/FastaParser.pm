@@ -13,6 +13,14 @@ get '/' => sub {
     template 'index';
 };
 
+any '/fasta' => sub {
+    my $blurb = <<BLURB;
+Please PUT your fasta-formatted data to the URL appropriate to the format in which you would like to receive the results, e.g.: /fasta/xls or /fasta/csv.
+BLURB
+
+    return $blurb;
+};
+
 put qr{/fasta/(csv|xls)} => sub {
     my( $format ) = splat;
     debug $format;
@@ -93,13 +101,13 @@ put qr{/fasta/(csv|xls)} => sub {
             $result->add_row( 'Results', \@line );
         }
         else {
-            $result = join( ',', @line ) . "\n";
+            $result .= join( ',', @line ) . "\n";
         }
     }
 
     # now return the results
     if ( $format eq 'xls' ) {
-        return( $result->output );
+        return( $result->output_as_string() );
     }
     else {
         return( $result );
